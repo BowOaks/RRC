@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth"><head><script id="aura-preview-performance-controller">
+(function() {
+if (window.__auraPreviewPerformanceController) return;
+const nativeRequestAnimationFrame = window.requestAnimationFrame
+? window.requestAnimationFrame.bind(window)
+: function(callback) { return window.setTimeout(function() { callback(Date.now()); }, 16); };
+const nativeCancelAnimationFrame = window.cancelAnimationFrame
+? window.cancelAnimationFrame.bind(window)
+: window.clearTimeout.bind(window);
+const nativeSetInterval = window.setInterval.bind(window);
+let paused = false;
+let nextFrameId = 1;
+const frameRecords = new Map();
+const pausedFrameCallbacks = new Map();
+const style = document.createElement('style');
+style.id = 'aura-preview-performance-style';
+style.textContent = [
+'html[data-aura-preview-paused="true"] *,',
+'html[data-aura-preview-paused="true"] *::before,',
+'html[data-aura-preview-paused="true"] *::after {',
+'  animation-play-state: paused !important;',
+'  transition-duration: 0s !important;',
+'  scroll-behavior: auto !important;',
+'}'
+].join('\n');
+document.head.appendChild(style);
+window.requestAnimationFrame = function(callback) {
+const frameId = nextFrameId++;
+if (paused) {
+pausedFrameCallbacks.set(frameId, callback);
+frameRecords.set(frameId, { paused: true });
+return frameId;
+}
+const nativeFrameId = nativeRequestAnimationFrame(function(timestamp) {
+frameRecords.delete(frameId);
+callback(timestamp);
+});
+frameRecords.set(frameId, { nativeFrameId: nativeFrameId });
+return frameId;
+};
+window.cancelAnimationFrame = function(frameId) {
+const record = frameRecords.get(frameId);
+pausedFrameCallbacks.delete(frameId);
+if (record && typeof record.nativeFrameId !== 'undefined') {
+nativeCancelAnimationFrame(record.nativeFrameId);
+}
+frameRecords.delete(frameId);
+};
+window.setInterval = function(callback, delay) {
+const args = Array.prototype.slice.call(arguments, 2);
+return nativeSetInterval(function() {
+if (paused) return;
+callback.apply(this, args);
+}, delay);
+};
+const flushPausedFrames = function() {
+const callbacks = Array.from(pausedFrameCallbacks.entries());
+pausedFrameCallbacks.clear();
+callbacks.forEach(function(entry) {
+const frameId = entry[0];
+const callback = entry[1];
+const nativeFrameId = nativeRequestAnimationFrame(function(timestamp) {
+frameRecords.delete(frameId);
+callback(timestamp);
+});
+frameRecords.set(frameId, { nativeFrameId: nativeFrameId });
+});
+};
+const setPaused = function(nextPaused) {
+const shouldPause = Boolean(nextPaused);
+if (paused === shouldPause) return;
+paused = shouldPause;
+document.documentElement.toggleAttribute('data-aura-preview-paused', paused);
+if (!paused) {
+flushPausedFrames();
+}
+};
+window.__auraPreviewPerformanceController = {
+setPaused: setPaused,
+get paused() {
+return paused;
+}
+};
+window.addEventListener('message', function(event) {
+if (event.source !== window.parent) return;
+if (!event.data || event.data.type !== 'aura-preview-performance-mode') return;
+setPaused(event.data.paused);
+});
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resolutions Recovery Centre</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+body {
+font-family: 'Inter', sans-serif;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+</style></head>
+  <body class="bg-white text-gray-900">
+    <!-- Floating Navigation -->
+    <header class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-6xl">
+      <nav class="flex shadow-black/20 text-white bg-gray-900 border-white/10 border rounded-full pt-4 pr-6 pb-4 pl-6 shadow-2xl backdrop-blur-md items-center justify-between">
+        <div class="flex gap-x-2 gap-y-2 items-center">
+          
+          <span class="text-lg font-medium tracking-tight">Resolutions Recovery Centre</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+          <a href="service.html" class="hover:text-white transition-colors">
+            Services
+          </a>
+          <a href="about.html" class="hover:text-white transition-colors">About</a>
+          <a href="blog.html" class="hover:text-white transition-colors">Blog</a>
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="hidden md:flex hover:bg-gray-100 transition-colors text-sm font-medium text-gray-900 bg-white rounded-full pt-2 pr-5 pb-2 pl-5" onclick="window.location.href='admisions.html'" role="button">Get Started</button>
+          <button class="md:hidden text-white">
+            <i data-lucide="menu" stroke-width="1.5" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="">
+      <!-- Hero Section -->
+      <section class="overflow-hidden lg:rounded-b-[5rem] lg:pb-30 lg:pt-40 bg-[#7A9B9D] rounded-b-[3rem] pt-40 pb-24 relative">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-16 relative z-10">
+          <div class="w-full lg:w-1/2 text-white">
+            <h1 class="text-5xl lg:text-7xl font-medium tracking-tight leading-[1.1] mb-6">
+              Our Services &amp; Recovery Programs
+            </h1>
+            <p class="text-xl lg:text-2xl text-white/90 mb-10 font-normal leading-relaxed">
+              Comprehensive, evidence-based care tailored to your unique
+              journey. From clinical intake to lifelong aftercare, we are with
+              you every step of the way.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-4">
+              <a href="#" class="bg-gray-900 text-white px-8 py-4 rounded-full text-lg font-medium flex items-center gap-2 hover:bg-black transition-colors shadow-lg">
+                <i data-lucide="phone" stroke-width="1.5" class="w-5 h-5"></i>
+                Call Now
+              </a>
+              <a href="#" class="bg-white/10 backdrop-blur-sm text-white border border-white/20 px-8 py-4 rounded-full text-lg font-medium flex items-center gap-2 hover:bg-white/20 transition-colors">
+                <i data-lucide="message-circle" stroke-width="1.5" class="w-5 h-5"></i>
+                WhatsApp Us
+              </a>
+              
+            </div>
+          </div>
+
+          <div class="w-full lg:w-1/2 relative h-[400px] lg:h-[650px] rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&amp;fit=crop&amp;q=80&amp;w=1200" alt="Calm architecture" class="absolute inset-0 w-full h-full object-cover">
+          </div>
+        </div>
+
+        <!-- Abstract Background Elements -->
+        <div class="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-[800px] h-[800px] bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+      </section>
+
+      <!-- Trust Strip -->
+      <section class="max-w-7xl mx-auto px-6 py-12 lg:py-16 border-b border-gray-100">
+        <div class="flex flex-wrap justify-center lg:justify-between items-center gap-8 lg:gap-12">
+          <div class="flex items-center gap-3 text-gray-500">
+            <i data-lucide="shield-check" stroke-width="1.5" class="w-6 h-6"></i>
+            <span class="text-lg font-medium tracking-tight">
+              NACADA Accredited
+            </span>
+          </div>
+          <div class="flex items-center gap-3 text-gray-500">
+            <i data-lucide="stethoscope" stroke-width="1.5" class="w-6 h-6"></i>
+            <span class="text-lg font-medium tracking-tight">
+              Clinically Supervised Detox
+            </span>
+          </div>
+          <div class="flex items-center gap-3 text-gray-500">
+            <i data-lucide="lock" stroke-width="1.5" class="w-6 h-6"></i>
+            <span class="text-lg font-medium tracking-tight">
+              Confidential Admissions
+            </span>
+          </div>
+          <div class="flex items-center gap-3 text-gray-500">
+            <i data-lucide="clock-4" stroke-width="1.5" class="w-6 h-6"></i>
+            <span class="text-lg font-medium tracking-tight">24/7 Support</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Value Proposition (Zig-Zag 1) -->
+
+      <!-- Recovery Approach (Zig-Zag 2) -->
+
+      <!-- Treatment Models -->
+      <section class="bg-gray-50 rounded-[3rem] mr-4 mb-24 ml-4 pt-24 pb-24 lg:mx-8 lg:pb-6 lg:pt-6 lg:mb-6">
+        <div class="max-w-5xl mx-auto px-6 text-center mb-16">
+          <p class="text-sm font-medium text-gray-400 uppercase tracking-widest mb-4">
+            Clinical Framework
+          </p>
+          <h2 class="text-4xl lg:text-5xl font-medium tracking-tight text-gray-900 mb-6 leading-[1.1]">
+            A Proven, Holistic Treatment Approach
+          </h2>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-8">
+          <div class="bg-white p-10 lg:p-12 rounded-[2rem] shadow-sm border border-gray-100">
+            <div class="w-12 h-12 bg-[#7A9B9D]/10 rounded-full flex items-center justify-center mb-8">
+              <i data-lucide="network" stroke-width="1.5" class="w-6 h-6 text-[#7A9B9D]"></i>
+            </div>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-4">
+              Biopsychosocial-Spiritual Model (BPSS)
+            </h3>
+            <p class="text-lg text-gray-600 leading-relaxed">
+              We treat the whole person — body, mind, relationships, and
+              purpose. This comprehensive framework ensures that no aspect of
+              your well-being is left unaddressed during recovery.
+            </p>
+          </div>
+          <div class="bg-white p-10 lg:p-12 rounded-[2rem] shadow-sm border border-gray-100">
+            <div class="w-12 h-12 bg-[#7A9B9D]/10 rounded-full flex items-center justify-center mb-8">
+              <i data-lucide="book-open" stroke-width="1.5" class="w-6 h-6 text-[#7A9B9D]"></i>
+            </div>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-4">
+              Minnesota Model
+            </h3>
+            <p class="text-lg text-gray-600 leading-relaxed">
+              A globally recognized, abstinence-based framework combining
+              clinical care, peer support, and structured recovery principles
+              designed to foster sustained sobriety.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Services Snapshot -->
+      <section class="lg:pb-6 max-w-7xl mr-auto ml-auto pt-6 pr-6 pb-6 pl-6" id="services">
+        <div class="mb-16">
+          <h2 class="text-4xl lg:text-5xl font-medium tracking-tight text-gray-900 mb-6">
+            Comprehensive Care Services
+          </h2>
+          <p class="text-lg text-gray-500">
+            Clinical &amp; Therapeutic Programs tailored to your needs.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 gap-x-6 gap-y-6">
+          <!-- 1 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="test-tube" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Liver Function Test (LFT)
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Clinical intake blood test to assess liver health, guide safe
+              detox protocols, and inform individualized treatment.
+            </p>
+          </div>
+          <!-- 2 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="activity" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Medical Detoxification
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Safe, medically supervised withdrawal management to minimize
+              discomfort and health risks with nursing oversight.
+            </p>
+          </div>
+          <!-- 3 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="brain-circuit" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Psychiatric Assessment
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Comprehensive evaluation by a psychiatrist to identify and treat
+              co-occurring disorders (Dual Diagnosis).
+            </p>
+          </div>
+          <!-- 4 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="home" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Residential Rehab
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Structured 24/7 live-in program in a supportive, drug-free
+              environment designed for immersive recovery.
+            </p>
+          </div>
+          <!-- 5 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="user" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Individual Counseling
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              One-on-one sessions with licensed psychologists to explore
+              triggers, address trauma, and build coping strategies.
+            </p>
+          </div>
+          <!-- 6 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="users" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Group Therapy
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Daily therapeutic groups focusing on relapse prevention, life
+              skills, emotional regulation, and peer support.
+            </p>
+          </div>
+          <!-- 7 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="heart-handshake" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Family Therapy
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Sessions to heal family relationships, educate loved ones about
+              addiction, and build a supportive home environment.
+            </p>
+          </div>
+          <!-- 8 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="book-open" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Psychoeducation &amp; Skills
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Workshops on addiction as a disease, healthy routines, vocational
+              skills, and financial literacy.
+            </p>
+          </div>
+          <!-- 9 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="leaf" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Holistic Therapies
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Physical fitness, nutrition planning, mindfulness, meditation, art
+              therapy, and recreational wellness activities.
+            </p>
+          </div>
+          <!-- 10 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="star" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Spiritual Care
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Faith-based or spiritual pastoral services aligned with beliefs to
+              foster hope, purpose, and inner strength.
+            </p>
+          </div>
+          <!-- 11 -->
+          <div class="group border border-gray-200 rounded-[2rem] p-8 hover:border-gray-900 hover:shadow-lg transition-all duration-300 bg-white flex flex-col h-full">
+            <i data-lucide="sun" stroke-width="1.5" class="w-8 h-8 text-gray-400 group-hover:text-gray-900 mb-6 transition-colors"></i>
+            <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-3">
+              Aftercare Planning
+            </h3>
+            <p class="text-lg text-gray-500 mb-6 flex-grow">
+              Personalized discharge planning with ongoing support options for a
+              sustainable, lifelong recovery.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Facilities -->
+      <section id="aftercare" class="lg:pb-10 lg:pt-10 max-w-7xl mr-auto ml-auto pt-6 pr-6 pb-6 pl-6">
+        <div class="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+          <div class="w-full lg:w-1/2">
+            <p class="text-sm font-medium text-gray-400 uppercase tracking-widest mb-4">
+              Success Stories
+            </p>
+            <h2 class="text-4xl lg:text-5xl font-medium tracking-tight text-gray-900 mb-8 leading-[1.1]">
+              Voices of Recovery
+            </h2>
+            <p class="text-lg text-gray-600 leading-relaxed font-normal mb-8">
+              Read anonymized experiences from individuals who have walked this
+              path, overcome addiction, and reclaimed their lives through our
+              comprehensive programs.
+            </p>
+          </div>
+          <div class="w-full lg:w-1/2 flex flex-col gap-6">
+            <div class="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 relative">
+              <i data-lucide="quote" stroke-width="1" class="w-12 h-12 text-gray-200 absolute top-6 right-6"></i>
+              <p class="text-lg text-gray-600 italic mb-6 relative z-10">
+                "The dual diagnosis approach literally saved my life.
+                Understanding that my addiction was tied to untreated anxiety
+                allowed me to finally break the cycle. The counselors here are
+                exceptional."
+              </p>
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-[#7A9B9D] rounded-full flex items-center justify-center text-white font-medium">
+                  M
+                </div>
+                <div>
+                  <h4 class="font-medium text-gray-900">Anonymous Client</h4>
+                  <p class="text-sm text-gray-500">6 Months Sober</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 relative">
+              <i data-lucide="quote" stroke-width="1" class="w-12 h-12 text-gray-200 absolute top-6 right-6"></i>
+              <p class="text-lg text-gray-600 italic mb-6 relative z-10">
+                "The medical detox was handled with so much dignity and care.
+                What stood out to me was the aftercare planning—I didn't just
+                leave; I left with a roadmap for my future."
+              </p>
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-medium">
+                  J
+                </div>
+                <div>
+                  <h4 class="font-medium text-gray-900">Anonymous Client</h4>
+                  <p class="text-sm text-gray-500">1 Year Sober</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+
+      <!-- Final CTA -->
+      <section class="mx-4 lg:mx-8 mb-8 mt-12">
+        <div class="bg-gray-900 rounded-[3rem] py-24 px-6 text-center relative overflow-hidden">
+          <div class="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+            <h2 class="text-5xl lg:text-6xl font-medium tracking-tight text-white mb-6">
+              Take the First Step Today
+            </h2>
+            <p class="text-xl text-gray-400 mb-12 font-normal">
+              Recovery is possible. Let us help you begin your journey to a
+              better life.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <a href="#" class="bg-white text-gray-900 px-10 py-5 rounded-full text-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors">
+                <i data-lucide="phone" stroke-width="1.5" class="w-5 h-5"></i>
+                Call Admissions
+              </a>
+              <a href="#" class="bg-white/10 text-white border border-white/20 px-10 py-5 rounded-full text-lg font-medium flex items-center justify-center gap-2 hover:bg-white/20 transition-colors">
+                Request Callback
+              </a>
+            </div>
+          </div>
+          <!-- Background decoration -->
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-[#7A9B9D]/20 blur-[100px] rounded-full pointer-events-none"></div>
+        </div>
+      </section>
+    </main>
+    <footer class="bg-gray-50 pt-24 pb-12 border-t border-gray-200" id="contact">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-16">
+          <!-- Contact Form -->
+          <div class="">
+            <h2 class="text-4xl font-medium tracking-tight text-gray-900 mb-4">
+              Get in Touch
+            </h2>
+            <p class="text-lg text-gray-600 mb-8 font-normal">
+              Fill out the form below and our admissions team will get back to
+              you confidentially.
+            </p>
+            <form class="space-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    First Name
+                  </label>
+                  <input type="text" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white" placeholder="John">
+                </div>
+                <div class="">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Last Name
+                  </label>
+                  <input type="text" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white" placeholder="Doe">
+                </div>
+              </div>
+              <div class="">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <input type="email" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white" placeholder="john@example.com">
+              </div>
+              <div class="">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Phone Number
+                </label>
+                <input type="tel" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white" placeholder="+254 ...">
+              </div>
+              <div class="">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Your Inquiry
+                </label>
+                <textarea rows="4" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white resize-none" placeholder="How can we help you?"></textarea>
+              </div>
+              <button type="submit" class="w-full bg-gray-900 text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-black transition-colors shadow-lg">
+                Send Message
+              </button>
+            </form>
+          </div>
+
+          <!-- Map and Info -->
+          <div>
+            <h2 class="text-4xl font-medium tracking-tight text-gray-900 mb-4">
+              Location
+            </h2>
+            <p class="text-lg text-gray-600 mb-8 font-normal">
+              Located in a serene setting in Kiambu County, offering privacy and
+              peace for your recovery journey.
+            </p>
+            <div class="w-full h-[400px] rounded-[2rem] overflow-hidden bg-gray-200 border border-gray-200 mb-8 shadow-sm">
+              <!-- Embedded Google Map -->
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127642.5855018151!2d36.75288599419131!3d-1.1718047053526116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f3c0cd72b9a11%3A0x63351319777174e9!2sKiambu%20County!5e0!3m2!1sen!2ske!4v1709667794276!5m2!1sen!2ske" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div class="flex flex-col gap-5">
+              <div class="flex items-center gap-4 text-gray-600">
+                <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                  <i data-lucide="map-pin" stroke-width="1.5" class="w-5 h-5 text-gray-900"></i>
+                </div>
+                <span class="text-lg">Kiambu County, Kenya</span>
+              </div>
+              <div class="flex items-center gap-4 text-gray-600">
+                <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                  <i data-lucide="phone" stroke-width="1.5" class="w-5 h-5 text-gray-900"></i>
+                </div>
+                <span class="text-lg">+254 700 000 000</span>
+              </div>
+              <div class="flex items-center gap-4 text-gray-600">
+                <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                  <i data-lucide="mail" stroke-width="1.5" class="w-5 h-5 text-gray-900"></i>
+                </div>
+                <span class="text-lg">info@resolutionsrecovery.co.ke</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+          <div class="flex items-center gap-2">
+            <i data-lucide="leaf" stroke-width="1.5" class="w-4 h-4"></i>
+            <span class="font-medium text-gray-900">
+              Resolutions Recovery Centre
+            </span>
+          </div>
+          <p>© 2024 Resolutions Recovery Centre. All rights reserved.</p>
+          <div class="flex items-center gap-6">
+            <a href="#" class="hover:text-gray-900 transition-colors">
+              Privacy Policy
+            </a>
+            <a href="#" class="hover:text-gray-900 transition-colors">
+              Terms of Service
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Initialize Lucide Icons
+      lucide.createIcons();
+    </script>
+  
+</body></html>

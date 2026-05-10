@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth"><head><script id="aura-preview-performance-controller">
+(function() {
+if (window.__auraPreviewPerformanceController) return;
+const nativeRequestAnimationFrame = window.requestAnimationFrame
+? window.requestAnimationFrame.bind(window)
+: function(callback) { return window.setTimeout(function() { callback(Date.now()); }, 16); };
+const nativeCancelAnimationFrame = window.cancelAnimationFrame
+? window.cancelAnimationFrame.bind(window)
+: window.clearTimeout.bind(window);
+const nativeSetInterval = window.setInterval.bind(window);
+let paused = false;
+let nextFrameId = 1;
+const frameRecords = new Map();
+const pausedFrameCallbacks = new Map();
+const style = document.createElement('style');
+style.id = 'aura-preview-performance-style';
+style.textContent = [
+'html[data-aura-preview-paused="true"] *,',
+'html[data-aura-preview-paused="true"] *::before,',
+'html[data-aura-preview-paused="true"] *::after {',
+'  animation-play-state: paused !important;',
+'  transition-duration: 0s !important;',
+'  scroll-behavior: auto !important;',
+'}'
+].join('\n');
+document.head.appendChild(style);
+window.requestAnimationFrame = function(callback) {
+const frameId = nextFrameId++;
+if (paused) {
+pausedFrameCallbacks.set(frameId, callback);
+frameRecords.set(frameId, { paused: true });
+return frameId;
+}
+const nativeFrameId = nativeRequestAnimationFrame(function(timestamp) {
+frameRecords.delete(frameId);
+callback(timestamp);
+});
+frameRecords.set(frameId, { nativeFrameId: nativeFrameId });
+return frameId;
+};
+window.cancelAnimationFrame = function(frameId) {
+const record = frameRecords.get(frameId);
+pausedFrameCallbacks.delete(frameId);
+if (record && typeof record.nativeFrameId !== 'undefined') {
+nativeCancelAnimationFrame(record.nativeFrameId);
+}
+frameRecords.delete(frameId);
+};
+window.setInterval = function(callback, delay) {
+const args = Array.prototype.slice.call(arguments, 2);
+return nativeSetInterval(function() {
+if (paused) return;
+callback.apply(this, args);
+}, delay);
+};
+const flushPausedFrames = function() {
+const callbacks = Array.from(pausedFrameCallbacks.entries());
+pausedFrameCallbacks.clear();
+callbacks.forEach(function(entry) {
+const frameId = entry[0];
+const callback = entry[1];
+const nativeFrameId = nativeRequestAnimationFrame(function(timestamp) {
+frameRecords.delete(frameId);
+callback(timestamp);
+});
+frameRecords.set(frameId, { nativeFrameId: nativeFrameId });
+});
+};
+const setPaused = function(nextPaused) {
+const shouldPause = Boolean(nextPaused);
+if (paused === shouldPause) return;
+paused = shouldPause;
+document.documentElement.toggleAttribute('data-aura-preview-paused', paused);
+if (!paused) {
+flushPausedFrames();
+}
+};
+window.__auraPreviewPerformanceController = {
+setPaused: setPaused,
+get paused() {
+return paused;
+}
+};
+window.addEventListener('message', function(event) {
+if (event.source !== window.parent) return;
+if (!event.data || event.data.type !== 'aura-preview-performance-mode') return;
+setPaused(event.data.paused);
+});
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog | Resolutions Recovery Centre</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+body {
+font-family: 'Inter', sans-serif;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+</style></head>
+  <body class="bg-white text-gray-900">
+    <!-- Floating Navigation -->
+    <header class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-6xl">
+      <nav class="flex shadow-black/20 text-white bg-gray-900 border-white/10 border rounded-full pt-4 pr-6 pb-4 pl-6 shadow-2xl backdrop-blur-md items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="leaf" stroke-width="1.5" class="w-5 h-5"></i>
+          <span class="text-lg font-medium tracking-tight">Resolutions</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+          <a href="service.html" class="hover:text-white transition-colors">Services</a>
+          <a href="about.html" class="hover:text-white transition-colors">About</a>
+          <a href="blog.html" class="hover:text-white transition-colors">Blog</a>
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="hidden md:flex hover:bg-gray-100 transition-colors cursor-pointer text-sm font-medium text-gray-900 bg-white rounded-full pt-2 pr-5 pb-2 pl-5" onclick="window.location.href='admisions.html'" role="button">Get Started</button>
+          <button class="md:hidden text-white">
+            <i data-lucide="menu" stroke-width="1.5" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="">
+      <!-- Hero Section -->
+      <section class="relative pt-40 pb-24 lg:pt-56 lg:pb-40 rounded-b-[3rem] lg:rounded-b-[5rem] overflow-hidden min-h-[600px] lg:min-h-[80vh] flex items-center justify-center bg-gray-900">
+        <div class="absolute inset-0 z-0">
+          <div class="absolute inset-0 bg-gray-900/60 z-10"></div>
+          <img id="slider-img" src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/917d6f93-fb36-439a-8c48-884b67b35381_1600w.jpg" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out opacity-100" alt="Mental Health Background">
+        </div>
+        <div class="relative z-20 max-w-4xl mx-auto px-6 text-center text-white w-full">
+          <div id="slider-text-wrapper" class="transition-all duration-700 ease-in-out transform translate-y-0 opacity-100">
+            <h1 id="slider-title" class="text-5xl lg:text-7xl font-medium tracking-tight leading-[1.1] mb-6 drop-shadow-md">
+              Mental Health Matters
+            </h1>
+            <p id="slider-desc" class="text-xl lg:text-2xl text-white/90 font-normal leading-relaxed drop-shadow">
+              Exploring the latest insights in holistic care, therapy, and
+              sustained mental wellness.
+            </p>
+          </div>
+        </div>
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-3" id="slider-dots">
+          <div class="w-2.5 h-2.5 rounded-full bg-white transition-colors duration-300" id="dot-0"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-white/40 transition-colors duration-300" id="dot-1"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-white/40 transition-colors duration-300" id="dot-2"></div>
+        </div>
+      </section>
+
+      <!-- Trust Strip -->
+      <section class="max-w-4xl mr-auto ml-auto pt-24 pr-6 pb-24 pl-6">
+  <div class="mb-16 text-center">
+    <p class="text-sm font-medium text-gray-400 uppercase tracking-widest mb-4">
+      Our Journal
+    </p>
+    <h2 class="lg:text-5xl leading-[1.1] text-4xl font-medium text-gray-900 tracking-tight mb-6">Insights &amp; Stories</h2>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+      Stay updated with the latest in mental health technology, inspiring
+      recovery journeys, and our holistic treatment methods.
+    </p>
+  </div>
+  
+  <div class="flex flex-col gap-4">
+    <!-- Card 1 -->
+    <details class="group border border-gray-200 rounded-3xl bg-white overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md">
+      <summary class="p-6 md:p-8 cursor-pointer list-none flex items-start md:items-center justify-between gap-6 outline-none [&amp;::-webkit-details-marker]:hidden hover:bg-gray-50 transition-colors">
+        <div class="flex-1">
+          <div class="flex items-center gap-4 mb-3">
+            <span class="text-sm font-medium text-gray-500">Mar 12, 2024</span>
+          </div>
+          <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-2">The Future of Therapy: VR and Neurofeedback</h3>
+          <p class="text-lg text-gray-600 line-clamp-1 group-open:hidden">Explore how virtual reality and neurofeedback are revolutionizing addiction treatment...</p>
+        </div>
+        <div class="flex-shrink-0 flex group-open:rotate-180 group-open:bg-gray-900 group-open:text-white group-open:border-gray-900 transition-all duration-300 md:mt-0 text-gray-600 w-12 h-12 border-gray-200 border rounded-full mt-1 items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-[20px] h-[20px]" style="width: 20px; height: 20px; color: rgb(75, 85, 99)" data-icon-replaced="true"><path d="m6 9 6 6 6-6"></path></svg>
+        </div>
+      </summary>
+      <div class="px-6 md:px-8 pb-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg" alt="VR Therapy" class="w-full md:w-1/3 aspect-video md:aspect-[4/3] object-cover rounded-2xl shadow-sm">
+        <div class="flex-1 flex flex-col">
+          <div class="text-lg text-gray-600 leading-relaxed">
+            <p>
+              Explore how virtual reality and neurofeedback are revolutionizing addiction treatment and helping patients re-wire neural pathways for lasting recovery. These innovative tools offer immersive environments for exposure therapy and real-time brainwave monitoring, ensuring personalized and highly effective care plans.
+            </p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Card 2 -->
+    <details class="group border border-gray-200 rounded-3xl bg-white overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md">
+      <summary class="p-6 md:p-8 cursor-pointer list-none flex items-start md:items-center justify-between gap-6 outline-none [&amp;::-webkit-details-marker]:hidden hover:bg-gray-50 transition-colors">
+        <div class="flex-1">
+          <div class="flex items-center gap-4 mb-3">
+            <span class="text-sm font-medium text-gray-500">Feb 28, 2024</span>
+          </div>
+          <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-2">One Day at a Time: John's 10-Year Journey</h3>
+          <p class="text-lg text-gray-600 line-clamp-1 group-open:hidden">A candid look into one man's inspiring journey through the 12 steps...</p>
+        </div>
+        <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-gray-200 text-gray-600 group-open:rotate-180 group-open:bg-gray-900 group-open:text-white group-open:border-gray-900 transition-all duration-300 mt-1 md:mt-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m6 9 6 6 6-6"></path></svg>
+        </div>
+      </summary>
+      <div class="px-6 md:px-8 pb-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/c543a9e1-f226-4ced-80b0-feb8445a75b9_1600w.jpg" alt="Journaling" class="w-full md:w-1/3 aspect-video md:aspect-[4/3] object-cover rounded-2xl shadow-sm">
+        <div class="flex-1 flex flex-col">
+          <div class="text-lg text-gray-600 leading-relaxed">
+            <p>
+              A candid look into one man's inspiring journey through the 12 steps, the importance of sponsorship, and the daily commitment to sobriety. John shares his struggles, milestones, and the profound impact of community support in maintaining a decade of continuous recovery.
+            </p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Card 3 -->
+    <details class="group border border-gray-200 rounded-3xl bg-white overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md">
+      <summary class="p-6 md:p-8 cursor-pointer list-none flex items-start md:items-center justify-between gap-6 outline-none [&amp;::-webkit-details-marker]:hidden hover:bg-gray-50 transition-colors">
+        <div class="flex-1">
+          <div class="flex items-center gap-4 mb-3">
+            <span class="text-sm font-medium text-gray-500">Feb 15, 2024</span>
+          </div>
+          <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-2">Breaking the Stigma: Men's Mental Health</h3>
+          <p class="text-lg text-gray-600 line-clamp-1 group-open:hidden">Societal expectations often discourage men from seeking help. We discuss why breaking this silence...</p>
+        </div>
+        <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-gray-200 text-gray-600 group-open:rotate-180 group-open:bg-gray-900 group-open:text-white group-open:border-gray-900 transition-all duration-300 mt-1 md:mt-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m6 9 6 6 6-6"></path></svg>
+        </div>
+      </summary>
+      <div class="px-6 md:px-8 pb-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/5bab247f-35d9-400d-a82b-fd87cfe913d2_1600w.webp" alt="Mental Health Support" class="w-full md:w-1/3 aspect-video md:aspect-[4/3] object-cover rounded-2xl shadow-sm">
+        <div class="flex-1 flex flex-col">
+          <div class="text-lg text-gray-600 leading-relaxed">
+            <p>
+              Societal expectations often discourage men from seeking help. We discuss why breaking this silence is critical for holistic mental well-being and addiction recovery. Creating safe spaces for vulnerability allows men to address underlying trauma and build resilience without judgment.
+            </p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Card 4 -->
+    <details class="group border border-gray-200 rounded-3xl bg-white overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md">
+      <summary class="p-6 md:p-8 cursor-pointer list-none flex items-start md:items-center justify-between gap-6 outline-none [&amp;::-webkit-details-marker]:hidden hover:bg-gray-50 transition-colors">
+        <div class="flex-1">
+          <div class="flex items-center gap-4 mb-3">
+            <span class="text-sm font-medium text-gray-500">Jan 30, 2024</span>
+          </div>
+          <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-2">Holistic Approaches to Detox and Recovery</h3>
+          <p class="text-lg text-gray-600 line-clamp-1 group-open:hidden">Discover how integrating mindfulness, proper nutrition, and yoga...</p>
+        </div>
+        <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-gray-200 text-gray-600 group-open:rotate-180 group-open:bg-gray-900 group-open:text-white group-open:border-gray-900 transition-all duration-300 mt-1 md:mt-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m6 9 6 6 6-6"></path></svg>
+        </div>
+      </summary>
+      <div class="px-6 md:px-8 pb-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg" alt="Holistic Recovery" class="w-full md:w-1/3 aspect-video md:aspect-[4/3] object-cover rounded-2xl shadow-sm">
+        <div class="flex-1 flex flex-col">
+          <div class="text-lg text-gray-600 leading-relaxed">
+            <p>
+              Discover how integrating mindfulness, proper nutrition, and yoga with clinical supervision provides a comprehensive foundation for recovery. Treating the mind, body, and spirit simultaneously ensures that patients are equipped with diverse coping strategies for lifelong wellness.
+            </p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Card 5 -->
+    <details class="group border border-gray-200 rounded-3xl bg-white overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md">
+      <summary class="p-6 md:p-8 cursor-pointer list-none flex items-start md:items-center justify-between gap-6 outline-none [&amp;::-webkit-details-marker]:hidden hover:bg-gray-50 transition-colors">
+        <div class="flex-1">
+          <div class="flex items-center gap-4 mb-3">
+            <span class="text-sm font-medium text-gray-500">Jan 12, 2024</span>
+          </div>
+          <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-2">New FDA-Approved Treatments for SUD</h3>
+          <p class="text-lg text-gray-600 line-clamp-1 group-open:hidden">A deep dive into the latest pharmacological advancements that are significantly reducing cravings...</p>
+        </div>
+        <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-gray-200 text-gray-600 group-open:rotate-180 group-open:bg-gray-900 group-open:text-white group-open:border-gray-900 transition-all duration-300 mt-1 md:mt-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m6 9 6 6 6-6"></path></svg>
+        </div>
+      </summary>
+      <div class="px-6 md:px-8 pb-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/c543a9e1-f226-4ced-80b0-feb8445a75b9_1600w.jpg" alt="Medical Treatments" class="w-full md:w-1/3 aspect-video md:aspect-[4/3] object-cover rounded-2xl shadow-sm">
+        <div class="flex-1 flex flex-col">
+          <div class="text-lg text-gray-600 leading-relaxed">
+            <p>
+              A deep dive into the latest pharmacological advancements that are significantly reducing cravings and preventing relapse in substance use disorders. These evidence-based medical interventions, combined with behavioral therapies, are setting new standards in addiction care.
+            </p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Card 6 -->
+    <details class="group border border-gray-200 rounded-3xl bg-white overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md">
+      <summary class="p-6 md:p-8 cursor-pointer list-none flex items-start md:items-center justify-between gap-6 outline-none [&amp;::-webkit-details-marker]:hidden hover:bg-gray-50 transition-colors">
+        <div class="flex-1">
+          <div class="flex items-center gap-4 mb-3">
+            <span class="text-sm font-medium text-gray-500">Dec 05, 2023</span>
+          </div>
+          <h3 class="text-2xl font-medium tracking-tight text-gray-900 mb-2">Understanding Co-occurring Disorders</h3>
+          <p class="text-lg text-gray-600 line-clamp-1 group-open:hidden">Dual diagnosis requires a specialized approach. Learn how treating the addiction...</p>
+        </div>
+        <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-gray-200 text-gray-600 group-open:rotate-180 group-open:bg-gray-900 group-open:text-white group-open:border-gray-900 transition-all duration-300 mt-1 md:mt-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m6 9 6 6 6-6"></path></svg>
+        </div>
+      </summary>
+      <div class="px-6 md:px-8 pb-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/5bab247f-35d9-400d-a82b-fd87cfe913d2_1600w.webp" alt="Dual Diagnosis" class="w-full md:w-1/3 aspect-video md:aspect-[4/3] object-cover rounded-2xl shadow-sm">
+        <div class="flex-1 flex flex-col">
+          <div class="text-lg text-gray-600 leading-relaxed">
+            <p>
+              Dual diagnosis requires a specialized approach. Learn how treating the addiction alongside the underlying mental health condition ensures long-term success. Integrated treatment plans that address depression, anxiety, and trauma simultaneously are proven to lower relapse rates.
+            </p>
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="mt-16 flex justify-center">
+    <button class="bg-white border border-gray-200 text-gray-900 px-8 py-4 rounded-full text-lg font-medium hover:bg-gray-50 transition-colors shadow-sm">
+      Load More Articles
+    </button>
+  </div>
+</section>
+
+      <!-- Value Proposition (Zig-Zag 1) -->
+
+      <!-- Recovery Approach (Zig-Zag 2) -->
+
+      <!-- Treatment Models -->
+      
+
+      <!-- Services Snapshot -->
+
+      <!-- Facilities -->
+
+      <!-- Testimonials -->
+
+      <!-- Final CTA -->
+      <section class="mx-4 lg:mx-8 mb-8 mt-12">
+        <div class="bg-gray-900 rounded-[3rem] py-24 px-6 text-center relative overflow-hidden">
+          <div class="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+            <h2 class="text-5xl lg:text-6xl font-medium tracking-tight text-white mb-6">
+              Take the First Step Today
+            </h2>
+            <p class="text-xl text-gray-400 mb-12 font-normal">
+              Recovery is possible. Let us help you begin your journey to a
+              better life.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <a href="#" class="bg-white text-gray-900 px-10 py-5 rounded-full text-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors">
+                <i data-lucide="phone" stroke-width="1.5" class="w-5 h-5"></i>
+                Call Admissions
+              </a>
+              <a href="#" class="bg-white/10 text-white border border-white/20 px-10 py-5 rounded-full text-lg font-medium flex items-center justify-center gap-2 hover:bg-white/20 transition-colors">
+                Request Callback
+              </a>
+            </div>
+          </div>
+          <!-- Background decoration -->
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-[#7A9B9D]/20 blur-[100px] rounded-full pointer-events-none"></div>
+        </div>
+      </section>
+    </main>
+    <footer class="bg-gray-50 pt-24 pb-12 border-t border-gray-200" id="contact">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-16">
+          <!-- Contact Form -->
+          <div>
+            <h2 class="text-4xl font-medium tracking-tight text-gray-900 mb-4">
+              Get in Touch
+            </h2>
+            <p class="text-lg text-gray-600 mb-8 font-normal">
+              Fill out the form below and our admissions team will get back to
+              you confidentially.
+            </p>
+            <form class="space-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    First Name
+                  </label>
+                  <input type="text" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white" placeholder="John">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Last Name
+                  </label>
+                  <input type="text" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white" placeholder="Doe">
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <input type="email" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white" placeholder="john@example.com">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Phone Number
+                </label>
+                <input type="tel" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white" placeholder="+254 ...">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Your Inquiry
+                </label>
+                <textarea rows="4" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all bg-white resize-none" placeholder="How can we help you?"></textarea>
+              </div>
+              <button type="submit" class="w-full bg-gray-900 text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-black transition-colors shadow-lg">
+                Send Message
+              </button>
+            </form>
+          </div>
+
+          <!-- Map and Info -->
+          <div>
+            <h2 class="text-4xl font-medium tracking-tight text-gray-900 mb-4">
+              Location
+            </h2>
+            <p class="text-lg text-gray-600 mb-8 font-normal">
+              Located in a serene setting in Kiambu County, offering privacy and
+              peace for your recovery journey.
+            </p>
+            <div class="w-full h-[400px] rounded-[2rem] overflow-hidden bg-gray-200 border border-gray-200 mb-8 shadow-sm">
+              <!-- Embedded Google Map -->
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127642.5855018151!2d36.75288599419131!3d-1.1718047053526116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f3c0cd72b9a11%3A0x63351319777174e9!2sKiambu%20County!5e0!3m2!1sen!2ske!4v1709667794276!5m2!1sen!2ske" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div class="flex flex-col gap-5">
+              <div class="flex items-center gap-4 text-gray-600">
+                <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                  <i data-lucide="map-pin" stroke-width="1.5" class="w-5 h-5 text-gray-900"></i>
+                </div>
+                <span class="text-lg">Kiambu County, Kenya</span>
+              </div>
+              <div class="flex items-center gap-4 text-gray-600">
+                <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                  <i data-lucide="phone" stroke-width="1.5" class="w-5 h-5 text-gray-900"></i>
+                </div>
+                <span class="text-lg">+254 700 000 000</span>
+              </div>
+              <div class="flex items-center gap-4 text-gray-600">
+                <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                  <i data-lucide="mail" stroke-width="1.5" class="w-5 h-5 text-gray-900"></i>
+                </div>
+                <span class="text-lg">info@resolutionsrecovery.co.ke</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+          <div class="flex items-center gap-2">
+            <i data-lucide="leaf" stroke-width="1.5" class="w-4 h-4"></i>
+            <span class="font-medium text-gray-900">
+              Resolutions Recovery Centre
+            </span>
+          </div>
+          <p>© 2024 Resolutions Recovery Centre. All rights reserved.</p>
+          <div class="flex items-center gap-6">
+            <a href="#" class="hover:text-gray-900 transition-colors">
+              Privacy Policy
+            </a>
+            <a href="#" class="hover:text-gray-900 transition-colors">
+              Terms of Service
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script class="">
+      // Initialize Lucide Icons
+      lucide.createIcons();
+    </script>
+
+    <script class="">
+      (function() {
+        const slides = [
+          {
+            img: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=2000',
+            title: 'Mental Health Matters',
+            desc: 'Exploring the latest insights in holistic care, therapy, and sustained mental wellness.'
+          },
+          {
+            img: 'https://images.unsplash.com/photo-1527137342181-19aab11a8ee8?auto=format&fit=crop&q=80&w=2000',
+            title: 'Stories of Recovery',
+            desc: 'Inspiring journeys from Alcoholics Anonymous and personal triumphs over addiction.'
+          },
+          {
+            img: 'https://images.unsplash.com/photo-1551281572-0215ee020c53?auto=format&fit=crop&q=80&w=2000',
+            title: 'Innovations in Care',
+            desc: 'Discover the latest medical progress and technology transforming behavioral health.'
+          }
+        ];
+        let currentSlide = 0;
+        const sliderImg = document.getElementById('slider-img');
+        const sliderText = document.getElementById('slider-text-wrapper');
+        const sliderTitle = document.getElementById('slider-title');
+        const sliderDesc = document.getElementById('slider-desc');
+
+        if(sliderImg && sliderText) {
+          const updateDots = (index) => {
+             for(let i=0; i<3; i++) {
+                const dot = document.getElementById('dot-'+i);
+                if(dot) {
+                   if(i === index) {
+                      dot.classList.remove('bg-white/40');
+                      dot.classList.add('bg-white');
+                   } else {
+                      dot.classList.remove('bg-white');
+                      dot.classList.add('bg-white/40');
+                   }
+                }
+             }
+          };
+
+          setInterval(() => {
+            sliderImg.classList.remove('opacity-100');
+            sliderImg.classList.add('opacity-0');
+            sliderText.classList.remove('translate-y-0', 'opacity-100');
+            sliderText.classList.add('translate-y-8', 'opacity-0');
+
+            setTimeout(() => {
+              currentSlide = (currentSlide + 1) % slides.length;
+              sliderImg.src = slides[currentSlide].img;
+              sliderTitle.textContent = slides[currentSlide].title;
+              sliderDesc.textContent = slides[currentSlide].desc;
+              updateDots(currentSlide);
+
+              sliderImg.classList.remove('opacity-0');
+              sliderImg.classList.add('opacity-100');
+              sliderText.classList.remove('translate-y-8', 'opacity-0');
+              sliderText.classList.add('translate-y-0', 'opacity-100');
+            }, 700);
+          }, 5000);
+        }
+      })();
+    </script>
+  
+</body></html>
